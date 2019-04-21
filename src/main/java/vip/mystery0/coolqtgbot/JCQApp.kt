@@ -101,7 +101,7 @@ class JCQApp : JcqAppAbstract(), ICQVer, IMsg, IRequest {
 	 */
 	override fun privateMsg(subType: Int, msgId: Int, fromQQ: Long, msg: String, font: Int): Int {
 		JcqApp.CQ.sendPrivateMsg(fromQQ, "我是一个机器人哦~")
-		if (config.manager != 0L) {
+		if (fromQQ != config.manager && config.manager != 0L) {
 			val type = when (subType) {
 				11 -> "来自好友"
 				1 -> "来自在线状态"
