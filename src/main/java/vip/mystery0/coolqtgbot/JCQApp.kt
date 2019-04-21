@@ -101,6 +101,16 @@ class JCQApp : JcqAppAbstract(), ICQVer, IMsg, IRequest {
 	 */
 	override fun privateMsg(subType: Int, msgId: Int, fromQQ: Long, msg: String, font: Int): Int {
 		JcqApp.CQ.sendPrivateMsg(fromQQ, "我是一个机器人哦~")
+		if (config.manager != 0L) {
+			val type = when (subType) {
+				11 -> "来自好友"
+				1 -> "来自在线状态"
+				2 -> "来自群"
+				3 -> "来自讨论组"
+				else -> "来自未知的黑洞"
+			}
+			JcqApp.CQ.sendPrivateMsg(config.manager, "接收到来自【$fromQQ】的消息（$type），消息内容是【$msg】")
+		}
 		return IMsg.MSG_IGNORE
 	}
 
@@ -119,7 +129,7 @@ class JCQApp : JcqAppAbstract(), ICQVer, IMsg, IRequest {
 	 */
 	override fun groupMsg(subType: Int, msgId: Int, fromGroup: Long, fromQQ: Long, fromAnonymous: String, msg: String,
 						  font: Int): Int {
-		if (fromQQ != 2447290180L)//不是管理员的消息
+		if (fromQQ != config.manager)//不是管理员的消息
 			return IMsg.MSG_IGNORE
 		if (!config.enableGroup.contains(fromGroup))//不是启用群的消息
 			return IMsg.MSG_IGNORE
@@ -358,6 +368,20 @@ class JCQApp : JcqAppAbstract(), ICQVer, IMsg, IRequest {
 		config.enableGroup.clear()
 		config.enableGroup.addAll(result.map { list[it].id })
 		config.update(dir)
+		return 0
+	}
+
+	/**
+	 * 本函数会在JCQ【线程】中被调用。
+	 *
+	 * @return 固定返回0
+	 */
+	fun menuSetManager(): Int {
+		val command = JOptionPane.showInputDialog(null, "请输入管理员的QQ账号", "设置", JOptionPane.INFORMATION_MESSAGE)
+		if (command != "") {
+			config.manager = command.toLong()
+			config.update(dir)
+		}
 		return 0
 	}
 
